@@ -89,7 +89,6 @@ maintenanceSchema.pre("save", function (next) {
    next();
 });
 
-const MWorkshop = mongoose.model("Workshop", workshopSchema);
-const MVehicle = mongoose.model("Vehicle", vehicleSchema);
-const MMaintenance = mongoose.model("Maintenance", maintenanceSchema);
-export default { MWorkshop, MVehicle, MMaintenance }
+export const MWorkshop = mongoose.model("Workshop", workshopSchema);
+export const MVehicle = mongoose.model("Vehicle", vehicleSchema);
+export const MMaintenance = mongoose.model("Maintenance", maintenanceSchema);
