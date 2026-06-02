@@ -86,7 +86,9 @@ const maintenanceSchema = new mongoose.Schema({
 maintenanceSchema.pre("save", function (next) {
    this.totalCost = this.services.reduce(
       (sum, service) => sum + service.price, 0);
-   next();
+   if (typeof next === "function") {
+      next();
+   }
 });
 
 export const MWorkshop = mongoose.model("Workshop", workshopSchema);
