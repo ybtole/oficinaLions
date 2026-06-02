@@ -5,7 +5,7 @@ const workshopSchema = new mongoose.Schema({
       type: String,
       required: true,
    },
-   adress: {
+   address: {
       type: String,
       required: true,
    },
@@ -13,10 +13,10 @@ const workshopSchema = new mongoose.Schema({
       type: [String],
       required: true,
    },
-   vehicles: { // Atendidos
-      type: [Number], // array que armazena id dos veiculos
-      required: true
-   },
+   vehicles: [{ // Atendidos
+      type: mongoose.Schema.Types.ObjectId, // Um array de ObjectIds referenciando os veículos atendidos pela oficina. 
+      ref: "Vehicle", // Referência ao modelo Vehicle
+   }],
    createdAt: {
       type: Date,
       default: Date.now,
@@ -40,12 +40,11 @@ const vehicleSchema = new mongoose.Schema({
    owner: {
       type: String,
       required: true,
-      unique: true
    },
-   maintenances: {
-      type: [Number],
-      required: true
-   },
+   maintenances: [{
+      type: mongoose.Schema.Types.ObjectId, // Um array de ObjectIds referenciando as manutenções realizadas no veículo.
+      ref: "Maintenance", // Referência ao modelo Maintenance
+   }],
    createdAt: {
       type: Date,
       default: Date.now,
@@ -54,29 +53,43 @@ const vehicleSchema = new mongoose.Schema({
 
 const maintenanceSchema = new mongoose.Schema({
    workshop: { // Um ObjectId referenciando a oficina onde a manutenção foi realizada.
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Workshop",
       required: true,
    },
    vehicle: { // Um ObjectId referenciando o veículo que foi submetido à manutenção.
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vehicle",
       required: true,
    },
-   services: {
-      type: [String], // Um array de objetos, cada um contendo o nome do serviço e o preço.
-      required: true,
-   },
-   totalCost: { // O valor total da manutenção (soma dos preços dos serviços).
+   services: [{
+      name: {
+         type: String,
+         required: true
+      },
+      price: {
+         type: Number,
+         required: true
+      }
+   }],
+   totalCost: {
       type: Number,
-      required: true
+      default: 0
    },
-   createdAt: {
+   date: {
       type: Date,
+      required: true,
       default: Date.now,
    }
+});
+
+maintenanceSchema.pre("save", function (next) {
+   this.totalCost = this.services.reduce(
+      (sum, service) => sum + service.price, 0);
+   next();
 });
 
 const MWorkshop = mongoose.model("Workshop", workshopSchema);
 const MVehicle = mongoose.model("Vehicle", vehicleSchema);
 const MMaintenance = mongoose.model("Maintenance", maintenanceSchema);
-
 export default { MWorkshop, MVehicle, MMaintenance }
